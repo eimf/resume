@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ezequiel Lopez - UI Architect & Senior Frontend Engineer with 10+ years of experience in React, Next.js, TypeScript, and design systems. Based in McAllen, TX.">
+    <meta name="author" content="Ezequiel Lopez">
+    <meta name="keywords" content="UI Architect, Frontend Engineer, React, Next.js, TypeScript, Design Systems">
+
+    <meta property="og:title" content="Ezequiel Lopez - UI Architect / Senior Frontend Engineer">
+    <meta property="og:description" content="UI-focused software engineer with 10+ years of experience designing, scaling, and modernizing frontend architectures.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://www.ezequiell.com">
+
+    <title>Ezequiel Lopez</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --color-text-primary: #1a1a1a;
+            --color-text-secondary: #4a4a4a;
+            --color-text-muted: #6b6b6b;
+            --color-accent: #2563eb;
+            --color-accent-hover: #1d4ed8;
+            --color-border: #e5e5e5;
+            --color-background: #ffffff;
+            --color-section-bg: #fafafa;
+            --spacing-xs: 0.5rem;
+            --spacing-sm: 1rem;
+            --spacing-md: 1.5rem;
+            --spacing-lg: 2rem;
+            --spacing-xl: 3rem;
+            --spacing-2xl: 4rem;
+        }
+
+        @media print {
+            :root {
+                --spacing-xl: 1.5rem;
+                --spacing-2xl: 2rem;
+            }
+
+            body {
+                font-size: 11pt;
+                line-height: 1.4;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+
+            a {
+                color: var(--color-text-primary);
+                text-decoration: none;
+            }
+
+            .header-contact a::after {
+                content: " (" attr(href) ")";
+                font-size: 0.8em;
+                color: var(--color-text-muted);
+            }
+
+            section {
+                page-break-inside: avoid;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--color-text-primary);
+            background-color: var(--color-background);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 52rem;
+            margin: 0 auto;
+            padding: var(--spacing-xl) var(--spacing-md);
+        }
+
+        @media (min-width: 640px) {
+            .container {
+                padding: var(--spacing-2xl) var(--spacing-lg);
+            }
+        }
+
+        header {
+            margin-bottom: var(--spacing-xl);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-text-primary);
+        }
+
+        @media (min-width: 640px) {
+            h1 {
+                font-size: 2.75rem;
+            }
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: var(--color-text-secondary);
+            margin-bottom: var(--spacing-md);
+            font-weight: 500;
+        }
+
+        .header-contact {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+            font-size: 0.9375rem;
+            color: var(--color-text-secondary);
+        }
+
+        .header-contact a {
+            color: var(--color-accent);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .header-contact a:hover {
+            color: var(--color-accent-hover);
+            text-decoration: underline;
+        }
+
+        .header-contact a:focus {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        .contact-separator {
+            color: var(--color-border);
+            user-select: none;
+        }
+
+        section {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-md);
+            color: var(--color-text-primary);
+            letter-spacing: -0.015em;
+            position: relative;
+            padding-bottom: var(--spacing-xs);
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 3rem;
+            height: 2px;
+            background-color: var(--color-accent);
+        }
+
+        h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: var(--spacing-xs);
+            color: var(--color-text-primary);
+        }
+
+        .job-header {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        @media (min-width: 640px) {
+            .job-header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: baseline;
+            }
+        }
+
+        .job-title {
+            font-size: 1rem;
+            color: var(--color-text-secondary);
+            font-weight: 500;
+        }
+
+        .job-date {
+            font-size: 0.9375rem;
+            color: var(--color-text-muted);
+            font-weight: 400;
+        }
+
+        .experience-item {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .experience-item:last-child {
+            margin-bottom: 0;
+        }
+
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            position: relative;
+            padding-left: 1.25rem;
+            margin-bottom: var(--spacing-sm);
+            color: var(--color-text-secondary);
+        }
+
+        ul li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--color-accent);
+            font-size: 0.875rem;
+        }
+
+        .summary-text {
+            color: var(--color-text-secondary);
+            line-height: 1.7;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--spacing-md);
+        }
+
+        @media (min-width: 640px) {
+            .skills-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .skill-category {
+            background-color: var(--color-section-bg);
+            padding: var(--spacing-md);
+            border-radius: 4px;
+            border-left: 3px solid var(--color-accent);
+        }
+
+        .skill-category-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .skill-category-content {
+            font-size: 0.9375rem;
+            color: var(--color-text-secondary);
+            line-height: 1.6;
+        }
+
+        .education-item {
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .education-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .education-school {
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .education-degree {
+            color: var(--color-text-secondary);
+            font-size: 0.9375rem;
+        }
+
+        .additional-links {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-sm);
+        }
+
+        .additional-links a {
+            color: var(--color-accent);
+            text-decoration: none;
+            font-size: 0.9375rem;
+            transition: color 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .additional-links a:hover {
+            color: var(--color-accent-hover);
+            text-decoration: underline;
+        }
+
+        .additional-links a:focus {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+            border-radius: 2px;
+        }
+
+        .download-section {
+            text-align: center;
+            margin-top: var(--spacing-md);
+        }
+
+        .download-label {
+            font-size: 0.8125rem;
+            color: var(--color-text-muted);
+            margin-bottom: var(--spacing-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background-color: transparent;
+            color: var(--color-accent);
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 400;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .download-btn:hover {
+            background-color: var(--color-section-bg);
+            border-color: var(--color-accent);
+        }
+
+        .download-btn:focus {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+
+        @media print {
+            .download-section {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Ezequiel Lopez</h1>
+            <p class="subtitle">Engineer</p>
+            <div class="header-contact">
+                <span>McAllen, TX</span>
+                <span class="contact-separator">•</span>
+                <a href="https://github.com/eimf" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <span class="contact-separator">•</span>
+                <a href="https://www.linkedin.com/in/ezzykeeel/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            </div>
+        </header>
+
+        <section>
+            <h2>Summary</h2>
+            <p class="summary-text">
+                Software engineer with 13+ years of experience building and shipping reliable, scalable software applications. Strong foundation in system design and architecture, modern development practices, and creating maintainable codebases. Adaptable across languages and frameworks, with a focus on solving complex problems.
+            </p>
+        </section>
+
+        <section>
+            <h2>Skills</h2>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <div class="skill-category-title">JavaScript Technologies</div>
+                    <div class="skill-category-content">
+                        React, Redux, Next, Node
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Programming Languages</div>
+                    <div class="skill-category-content">
+                        JavaScript, C, Java, Python, C#, Swift, Go
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Markup & Styling Languages</div>
+                    <div class="skill-category-content">
+                        HTML, CSS
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Preprocessors</div>
+                    <div class="skill-category-content">
+                        TypeScript, CoffeeScript, SASS, LESS, Tailwind
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">DevOps</div>
+                    <div class="skill-category-content">
+                        Jenkins, Docker, Kubernetes
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Cloud</div>
+                    <div class="skill-category-content">
+                        Vercel, Fly.io, AWS, Kafka
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Databases</div>
+                    <div class="skill-category-content">
+                        PostgreSQL, SQLite, MySQL, NoSQL
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Methodologies</div>
+                    <div class="skill-category-content">
+                        Agile
+                    </div>
+                </div>
+
+                <div class="skill-category">
+                    <div class="skill-category-title">Version Control</div>
+                    <div class="skill-category-content">
+                        Git
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Experience</h2>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <h3>Freelance</h3>
+                        <p class="job-title">Software Engineer</p>
+                    </div>
+                    <p class="job-date">May 2023 – Present</p>
+                </div>
+                <ul>
+                    <li>Gathered requirements, engaged with customers, and proposed tailored solutions for local businesses</li>
+                    <li>Planned projects based on clients' needs</li>
+                    <li>Organized development teams and collaborated with them using Agile methodologies</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <h3>Tata Consultancy Services</h3>
+                        <p class="job-title">Senior Software Engineer</p>
+                    </div>
+                    <p class="job-date">Jun 2014 – May 2023</p>
+                </div>
+                <ul>
+                    <li>Designed and developed a scalable and responsive front-end architecture</li>
+                    <li>Collaborated with a large, multidisciplinary team to develop a data-driven application with a microservices architecture</li>
+                    <li>Part of the migration of a data-driven application from a NoSQL database to a relational database, transitioning from a monolithic architecture to a microservices-based design</li>
+                    <li>Contributed to the modernization of a large-scale web application for managing transportation fleets</li>
+                    <li>Redesigned the landing page of the fleet management system to feature interactive widgets tailored to client roles with login-based access</li>
+                </ul>
+            </div>
+
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <h3>VanillaSys</h3>
+                        <p class="job-title">Senior Mobile Engineer</p>
+                    </div>
+                    <p class="job-date">Jul 2013 – Jun 2014</p>
+                </div>
+                <ul>
+                    <li>Involved in the development of mobile applications for iOS, Android, and Windows Phone</li>
+                </ul>
+            </div>
+        </section>
+
+        <section>
+            <h2>Education</h2>
+            <div class="education-item">
+                <div class="education-school">Universidad Autónoma de Guadalajara, GDL, MX</div>
+                <div class="education-degree">Engineer - Computer Science</div>
+                <div class="education-degree" style="margin-top: 0.5rem;">
+                    <strong>B.Eng.</strong> Biomedical/Medical Engineering &nbsp;&nbsp;
+                    <strong>M.Sc.</strong> Computer Science
+                </div>
+                <div class="education-degree" style="color: var(--color-text-muted); font-size: 0.875rem; margin-top: 0.25rem;">2007 - 2013</div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Additional</h2>
+            <div class="additional-links">
+                <div style="color: var(--color-text-secondary); font-size: 0.9375rem; margin-bottom: var(--spacing-sm);">
+                    See all previous roles at
+                    <a href="https://www.linkedin.com/in/ezzykeeel/" target="_blank" rel="noopener noreferrer" style="display: inline;">
+                        https://www.linkedin.com/in/ezzykeeel/
+                    </a>
+                </div>
+            </div>
+            <div class="download-section">
+                <div class="download-label">Download Resume</div>
+                <a href="/Ezequiel-Lopez.pdf" download="Ezequiel-Lopez.pdf" class="download-btn">Download PDF</a>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
