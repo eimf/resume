@@ -28,3 +28,4 @@ dist-ssr
 
 # LinkedIn data exports
 _linkedin/
+.vercel
