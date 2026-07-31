@@ -21,3 +21,10 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Steering / AI rules
+.cursor/
+.kiro/
+
+# LinkedIn data exports
+_linkedin/
