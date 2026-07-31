@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { animate } from 'animejs';
 
 const navItems = [
@@ -13,6 +14,44 @@ export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const indicatorRef = useRef<HTMLSpanElement>(null);
+  const clickCountRef = useRef(0);
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+
+    // Keyboard shortcut: Ctrl+Shift+A
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        navigate('/admin/login');
+      }
+    };
+    window.addEventListener('keydown', handleKeydown);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('keydown', handleKeydown);
+    };
+  }, [navigate]);
+
+  // 5-click logo easter egg
+  const handleLogoClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    clickCountRef.current += 1;
+
+    if (clickTimerRef.current) clearTimeout(clickTimerRef.current);
+    clickTimerRef.current = setTimeout(() => {
+      clickCountRef.current = 0;
+    }, 2000);
+
+    if (clickCountRef.current >= 5) {
+      clickCountRef.current = 0;
+      navigate('/admin/login');
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -57,6 +96,7 @@ export function Nav() {
         {/* Logo */}
         <a
           href="#"
+          onClick={handleLogoClick}
           className="font-mono text-sm font-semibold text-accent hover:text-accent-hover transition-colors"
         >
           ez<span className="text-text-muted">.</span>dev

@@ -1,9 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { animate, stagger } from 'animejs';
+import { useGetProfileQuery, useGetReposQuery, useGetSkillsQuery } from '../../store/api/apiSlice';
 
 export function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
+  const { data: profile } = useGetProfileQuery(undefined);
+  const { data: repos } = useGetReposQuery(undefined);
+  const { data: skills } = useGetSkillsQuery(undefined);
+
+  const totalRepos = repos?.length || 0;
+  const totalLanguages = skills?.find((s: any) => s.name === 'Languages')?.skills?.length || 7;
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -59,15 +66,15 @@ export function About() {
         {/* Stats bar */}
         <div ref={statsRef} className="animate-item opacity-0 grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
           <div className="glass-card p-4 text-center">
-            <div className="stat-number text-2xl font-bold text-accent" data-target="13" data-suffix="+">0</div>
+            <div className="stat-number text-2xl font-bold text-accent" data-target="15" data-suffix="+">0</div>
             <div className="text-xs text-text-muted font-mono mt-1">Years Shipping</div>
           </div>
           <div className="glass-card p-4 text-center">
-            <div className="stat-number text-2xl font-bold text-accent" data-target="36" data-suffix="">0</div>
+            <div className="stat-number text-2xl font-bold text-accent" data-target={String(totalRepos || 44)} data-suffix="">0</div>
             <div className="text-xs text-text-muted font-mono mt-1">GitHub Repos</div>
           </div>
           <div className="glass-card p-4 text-center">
-            <div className="stat-number text-2xl font-bold text-accent" data-target="7" data-suffix="">0</div>
+            <div className="stat-number text-2xl font-bold text-accent" data-target={String(totalLanguages)} data-suffix="">0</div>
             <div className="text-xs text-text-muted font-mono mt-1">Languages</div>
           </div>
           <div className="glass-card p-4 text-center">
@@ -79,8 +86,7 @@ export function About() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div className="animate-item opacity-0 space-y-6">
             <p className="text-text-secondary leading-relaxed">
-              For 13+ years I shipped software. Fast. Across industries, across stacks, across clouds.
-              I wrote the code, reviewed the code, deployed the code, debugged the code at 2 AM.
+              {profile?.summary || 'For 13+ years I shipped software. Fast. Across industries, across stacks, across clouds. I wrote the code, reviewed the code, deployed the code, debugged the code at 2 AM.'}
             </p>
             <p className="text-text-secondary leading-relaxed">
               Now I design systems that build things. I decide what gets built, how it composes,

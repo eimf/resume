@@ -3,7 +3,7 @@ import { animate, stagger, createTimeline } from 'animejs';
 
 const bootLines = [
   '> initializing system...',
-  '> loading 13 years of experience...',
+  '> loading 15 years of experience...',
   '> compiling skills.ts...',
   '> connecting to github://eimf...',
   '> ready.',
@@ -200,7 +200,7 @@ export function Hero() {
 
         <h1
           ref={nameRef}
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight text-text-primary mb-4"
+          className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-text-primary mb-4 whitespace-nowrap"
           style={{ perspective: '800px' }}
         >
           Ezequiel Lopez
@@ -215,7 +215,7 @@ export function Hero() {
 
         <div ref={contentRef} className="space-y-6">
           <p className="text-text-muted max-w-2xl mx-auto text-sm sm:text-base leading-relaxed opacity-0">
-            13+ years shipping software. Now designing systems that build it.
+            15+ years shipping software. Now designing systems that build it.
           </p>
 
           <div className="flex items-center justify-center gap-4 opacity-0 flex-wrap">

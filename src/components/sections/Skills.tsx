@@ -1,49 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { animate, stagger } from 'animejs';
-
-interface SkillCategory {
-  name: string;
-  skills: string[];
-  color: string;
-}
-
-const skillCategories: SkillCategory[] = [
-  {
-    name: 'Languages',
-    skills: ['TypeScript', 'JavaScript', 'Python', 'Java', 'Go', 'C#', 'Swift'],
-    color: '#58A6FF',
-  },
-  {
-    name: 'Frontend',
-    skills: ['React', 'Next.js', 'Redux/RTK', 'Tailwind', 'HTML/CSS', 'Anime.js'],
-    color: '#79C0FF',
-  },
-  {
-    name: 'Backend',
-    skills: ['Node.js', 'Express', 'PostgreSQL', 'SQLite', 'REST APIs', 'Microservices'],
-    color: '#3FB950',
-  },
-  {
-    name: 'Cloud & DevOps',
-    skills: ['AWS', 'Docker', 'Kubernetes', 'Vercel', 'Railway', 'CI/CD'],
-    color: '#D2A8FF',
-  },
-  {
-    name: 'AI & Tooling',
-    skills: ['Cursor', 'Kiro', 'Prompt Engineering', 'Context Engineering', 'AI Agents'],
-    color: '#FFA657',
-  },
-  {
-    name: 'Mobile',
-    skills: ['iOS (Swift)', 'React Native', 'Xcode'],
-    color: '#FF7B72',
-  },
-];
+import { useGetSkillsQuery } from '../../store/api/apiSlice';
 
 export function Skills() {
   const sectionRef = useRef<HTMLElement>(null);
+  const { data: skillCategories, isLoading } = useGetSkillsQuery(undefined);
 
   useEffect(() => {
+    if (isLoading || !skillCategories?.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -72,7 +37,32 @@ export function Skills() {
 
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [isLoading, skillCategories]);
+
+  if (isLoading) {
+    return (
+      <section id="skills" className="py-24 lg:py-32">
+        <div className="section-container">
+          <div className="mb-12">
+            <span className="font-mono text-xs text-accent tracking-wider uppercase">02 / Skills</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mt-2">Technical Arsenal</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="glass-card p-6 animate-pulse">
+                <div className="h-4 bg-surface-border rounded w-1/3 mb-4" />
+                <div className="flex flex-wrap gap-2">
+                  {[1, 2, 3, 4].map((j) => (
+                    <div key={j} className="h-6 bg-surface-border rounded w-16" />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="skills" ref={sectionRef} className="py-24 lg:py-32">
@@ -81,12 +71,12 @@ export function Skills() {
           <span className="font-mono text-xs text-accent tracking-wider uppercase">02 / Skills</span>
           <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mt-2">Technical Arsenal</h2>
           <p className="text-text-secondary mt-3 max-w-xl">
-            13 years of accumulated tools, frameworks, and paradigms — now orchestrated through AI.
+            15 years of accumulated tools, frameworks, and paradigms — now orchestrated through AI.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {skillCategories.map((category) => (
+          {skillCategories?.map((category: any) => (
             <div
               key={category.name}
               className="skill-card glass-card p-6 opacity-0 hover:border-accent/30 transition-colors duration-300"
@@ -96,7 +86,7 @@ export function Skills() {
                 <h3 className="text-sm font-mono font-medium text-text-primary">{category.name}</h3>
               </div>
               <div className="flex flex-wrap gap-2">
-                {category.skills.map((skill) => (
+                {category.skills.map((skill: string) => (
                   <span
                     key={skill}
                     className="skill-tag px-2.5 py-1 rounded-md text-xs font-mono opacity-0"

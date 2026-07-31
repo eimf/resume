@@ -1,56 +1,21 @@
 import { useEffect, useRef } from 'react';
 import { animate, stagger } from 'animejs';
-
-const experiences = [
-  {
-    company: 'Freelance / DHR',
-    role: 'Software Engineer',
-    period: 'May 2023 – Present',
-    current: true,
-    highlights: [
-      'Proposed tailored software solutions for local businesses',
-      'Built full-stack apps: tournament mgmt, booking, fleet systems',
-      'Orchestrating AI-powered development workflows with AI agents',
-    ],
-  },
-  {
-    company: 'Tata Consultancy Services',
-    role: 'Senior Software Engineer',
-    period: 'Jun 2014 – May 2023',
-    current: false,
-    highlights: [
-      'Designed scalable front-end architectures for enterprise clients',
-      'Migrated NoSQL → PostgreSQL, monolith → microservices',
-      'Modernized large-scale fleet management web application',
-      'Built role-based interactive dashboards',
-    ],
-  },
-  {
-    company: 'VanillaSys',
-    role: 'Senior Mobile Engineer',
-    period: 'Jul 2013 – Jun 2014',
-    current: false,
-    highlights: [
-      'Cross-platform mobile apps: iOS, Android, Windows Phone',
-    ],
-  },
-];
+import { useGetExperienceQuery } from '../../store/api/apiSlice';
 
 export function Experience() {
   const sectionRef = useRef<HTMLElement>(null);
+  const { data: experiences, isLoading } = useGetExperienceQuery(undefined);
 
   useEffect(() => {
+    if (isLoading || !experiences?.length) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const line = entry.target.querySelector('.timeline-line');
             if (line) {
-              animate(line, {
-                scaleY: [0, 1],
-                duration: 1200,
-                ease: 'inOutExpo',
-              });
+              animate(line, { scaleY: [0, 1], duration: 1200, ease: 'inOutExpo' });
             }
             animate(entry.target.querySelectorAll('.exp-item'), {
               opacity: [0, 1],
@@ -68,7 +33,32 @@ export function Experience() {
 
     if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
-  }, []);
+  }, [isLoading, experiences]);
+
+  if (isLoading) {
+    return (
+      <section id="experience" className="py-24 lg:py-32">
+        <div className="section-container">
+          <div className="mb-12">
+            <span className="font-mono text-xs text-accent tracking-wider uppercase">03 / Experience</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mt-2">Career Timeline</h2>
+          </div>
+          <div className="space-y-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="glass-card p-6 animate-pulse">
+                <div className="h-5 bg-surface-border rounded w-1/3 mb-3" />
+                <div className="h-4 bg-surface-border rounded w-1/4 mb-4" />
+                <div className="space-y-2">
+                  <div className="h-3 bg-surface-border rounded w-full" />
+                  <div className="h-3 bg-surface-border rounded w-5/6" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="experience" ref={sectionRef} className="py-24 lg:py-32">
@@ -85,8 +75,8 @@ export function Experience() {
           />
 
           <div className="space-y-12">
-            {experiences.map((exp, i) => (
-              <div key={i} className="exp-item opacity-0 relative pl-12 md:pl-16">
+            {experiences?.map((exp: any) => (
+              <div key={exp.id} className="exp-item opacity-0 relative pl-12 md:pl-16">
                 <div className="absolute left-2.5 md:left-4 top-2 w-3 h-3 rounded-full border-2 border-accent bg-surface z-10">
                   {exp.current && (
                     <div className="absolute inset-0 rounded-full bg-accent animate-ping opacity-30" />
@@ -102,7 +92,7 @@ export function Experience() {
                     <span className="text-xs font-mono text-text-muted whitespace-nowrap">{exp.period}</span>
                   </div>
                   <ul className="space-y-2">
-                    {exp.highlights.map((h, j) => (
+                    {exp.highlights?.map((h: string, j: number) => (
                       <li key={j} className="flex items-start gap-2 text-sm text-text-secondary">
                         <span className="text-accent mt-0.5 shrink-0">▸</span>
                         {h}
