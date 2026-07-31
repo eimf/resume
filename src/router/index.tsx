@@ -1,16 +1,22 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter } from 'react-router-dom';
 import { Layout } from '../components/layout';
 import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 import { HomePage } from '../pages/HomePage';
-import {
-  AdminLogin,
-  AdminLayout,
-  AdminDashboard,
-  AdminProjects,
-  AdminExperience,
-  AdminSkills,
-  AdminProfile,
-} from '../pages/admin';
+
+const AdminLogin = lazy(() => import('../pages/admin/AdminLogin').then(m => ({ default: m.AdminLogin })));
+const AdminLayout = lazy(() => import('../pages/admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
+const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const AdminProjects = lazy(() => import('../pages/admin/AdminProjects').then(m => ({ default: m.AdminProjects })));
+const AdminExperience = lazy(() => import('../pages/admin/AdminExperience').then(m => ({ default: m.AdminExperience })));
+const AdminSkills = lazy(() => import('../pages/admin/AdminSkills').then(m => ({ default: m.AdminSkills })));
+const AdminProfile = lazy(() => import('../pages/admin/AdminProfile').then(m => ({ default: m.AdminProfile })));
+
+const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+    {children}
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   {
@@ -22,21 +28,27 @@ export const router = createBrowserRouter([
   },
   {
     path: '/admin/login',
-    element: <AdminLogin />,
+    element: (
+      <SuspenseWrapper>
+        <AdminLogin />
+      </SuspenseWrapper>
+    ),
   },
   {
     path: '/admin',
     element: (
       <ProtectedRoute>
-        <AdminLayout />
+        <SuspenseWrapper>
+          <AdminLayout />
+        </SuspenseWrapper>
       </ProtectedRoute>
     ),
     children: [
-      { index: true, element: <AdminDashboard /> },
-      { path: 'projects', element: <AdminProjects /> },
-      { path: 'experience', element: <AdminExperience /> },
-      { path: 'skills', element: <AdminSkills /> },
-      { path: 'profile', element: <AdminProfile /> },
+      { index: true, element: <SuspenseWrapper><AdminDashboard /></SuspenseWrapper> },
+      { path: 'projects', element: <SuspenseWrapper><AdminProjects /></SuspenseWrapper> },
+      { path: 'experience', element: <SuspenseWrapper><AdminExperience /></SuspenseWrapper> },
+      { path: 'skills', element: <SuspenseWrapper><AdminSkills /></SuspenseWrapper> },
+      { path: 'profile', element: <SuspenseWrapper><AdminProfile /></SuspenseWrapper> },
     ],
   },
 ]);

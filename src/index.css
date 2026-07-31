@@ -83,19 +83,48 @@
 
 /* Print styles */
 @media print {
+  canvas,
+  nav,
+  .no-print,
+  svg[aria-hidden],
+  [data-scroll-indicator] {
+    display: none !important;
+  }
+
   body {
     background: white;
     color: #1a1a1a;
     font-size: 11pt;
   }
 
-  .no-print {
+  .glass-card {
+    background: white;
+    border: 1px solid #ddd;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    page-break-inside: avoid;
+  }
+
+  .section-container {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  section {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+  }
+
+  footer a[href*="easter"],
+  footer .easter-egg,
+  footer a:last-child {
     display: none !important;
   }
 
-  .glass-card {
-    background: white;
-    border: 1px solid #e5e5e5;
-    box-shadow: none;
+  .glass-card,
+  [class*="experience-item"],
+  .experience-item {
+    page-break-inside: avoid;
   }
 }
