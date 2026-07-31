@@ -3,6 +3,15 @@ import { pool } from '../db/pool.js';
 
 export const reposRouter = Router();
 
+reposRouter.get('/count', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) as total FROM projects');
+    res.json({ total: parseInt(result.rows[0].total) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 reposRouter.get('/', async (req, res) => {
   try {
     // Show featured projects first, then fall back to most recently updated

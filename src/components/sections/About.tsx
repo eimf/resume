@@ -1,15 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { animate, stagger } from 'animejs';
-import { useGetProfileQuery, useGetReposQuery, useGetSkillsQuery } from '../../store/api/apiSlice';
+import { useGetProfileQuery, useGetReposCountQuery, useGetSkillsQuery } from '../../store/api/apiSlice';
 
 export function About() {
   const sectionRef = useRef<HTMLElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const { data: profile } = useGetProfileQuery(undefined);
-  const { data: repos } = useGetReposQuery(undefined);
+  const { data: reposCount } = useGetReposCountQuery(undefined);
   const { data: skills } = useGetSkillsQuery(undefined);
 
-  const totalRepos = repos?.length || 0;
+  const totalRepos = reposCount?.total || 44;
   const totalLanguages = skills?.find((s: any) => s.name === 'Languages')?.skills?.length || 7;
 
   useEffect(() => {

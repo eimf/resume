@@ -25,6 +25,10 @@ export const apiSlice = createApi({
       query: () => '/repos',
       providesTags: ['Repos'],
     }),
+    getReposCount: builder.query({
+      query: () => '/repos/count',
+      providesTags: ['Repos'],
+    }),
     getExperience: builder.query({
       query: () => '/experience',
       providesTags: ['Experience'],
@@ -75,6 +79,7 @@ export const apiSlice = createApi({
 export const {
   useGetProfileQuery,
   useGetReposQuery,
+  useGetReposCountQuery,
   useGetExperienceQuery,
   useGetEducationQuery,
   useGetSkillsQuery,
