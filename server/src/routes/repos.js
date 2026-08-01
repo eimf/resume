@@ -14,10 +14,10 @@ reposRouter.get('/count', async (req, res) => {
 
 reposRouter.get('/', async (req, res) => {
   try {
-    // Show featured projects first, then fall back to most recently updated
+    // Show featured projects first, deployed prioritized, then fall back to most recently updated
     const result = await pool.query(
       `SELECT * FROM projects 
-       ORDER BY is_featured DESC, stars DESC, last_updated DESC NULLS LAST
+       ORDER BY is_deployed DESC, is_featured DESC, stars DESC, last_updated DESC NULLS LAST
        LIMIT 9`
     );
     res.json(result.rows);

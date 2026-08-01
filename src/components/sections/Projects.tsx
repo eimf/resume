@@ -90,11 +90,14 @@ export function Projects() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {projects?.map((project: any) => {
             const isPrivate = project.is_private;
+            const isDeployed = project.is_deployed && project.deploy_url;
             const description = project.custom_description || project.description;
-            const CardTag = isPrivate ? 'div' : 'a';
-            const cardProps = isPrivate
-              ? {}
-              : { href: project.url, target: '_blank', rel: 'noopener noreferrer' };
+            // If deployed, link to the live app. If public, link to GitHub. If private, no link.
+            const linkUrl = isDeployed ? project.deploy_url : (!isPrivate ? project.url : null);
+            const CardTag = linkUrl ? 'a' : 'div';
+            const cardProps = linkUrl
+              ? { href: linkUrl, target: '_blank', rel: 'noopener noreferrer' }
+              : {};
 
             return (
               <CardTag
@@ -117,7 +120,12 @@ export function Projects() {
                       <h3 className="text-sm font-mono font-semibold text-text-primary group-hover:text-accent transition-colors">
                         {project.name}
                       </h3>
-                      {isPrivate && (
+                      {isDeployed && (
+                        <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-green-500/20 text-green-400">
+                          live
+                        </span>
+                      )}
+                      {isPrivate && !isDeployed && (
                         <span className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-border text-text-muted">
                           🔒
                         </span>
@@ -128,7 +136,7 @@ export function Projects() {
                         </span>
                       )}
                     </div>
-                    {!isPrivate && (
+                    {linkUrl && (
                       <svg width="14" height="14" viewBox="0 0 16 16" className="text-text-muted group-hover:text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0 mt-0.5">
                         <path d="M3.75 2h3.5a.75.75 0 010 1.5H4.56l7.72 7.72a.75.75 0 11-1.06 1.06L3.5 4.56v2.69a.75.75 0 01-1.5 0v-3.5A1.75 1.75 0 013.75 2z" fill="currentColor" />
                       </svg>

@@ -59,6 +59,8 @@ const migrate = async () => {
       url VARCHAR(500),
       is_private BOOLEAN DEFAULT FALSE,
       is_featured BOOLEAN DEFAULT FALSE,
+      is_deployed BOOLEAN DEFAULT FALSE,
+      deploy_url VARCHAR(500),
       custom_description TEXT,
       last_updated TIMESTAMP,
       synced_at TIMESTAMP DEFAULT NOW()

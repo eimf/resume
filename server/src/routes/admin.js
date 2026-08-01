@@ -64,13 +64,15 @@ adminRouter.put('/profile', async (req, res) => {
 adminRouter.patch('/projects/:id/feature', async (req, res) => {
   try {
     const { id } = req.params;
-    const { is_featured, custom_description } = req.body;
+    const { is_featured, custom_description, deploy_url, is_deployed } = req.body;
     await pool.query(`
       UPDATE projects SET
         is_featured = COALESCE($2, is_featured),
-        custom_description = COALESCE($3, custom_description)
+        custom_description = COALESCE($3, custom_description),
+        deploy_url = COALESCE($4, deploy_url),
+        is_deployed = COALESCE($5, is_deployed)
       WHERE id = $1
-    `, [id, is_featured, custom_description]);
+    `, [id, is_featured, custom_description, deploy_url, is_deployed]);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
