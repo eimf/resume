@@ -60,19 +60,45 @@ adminRouter.put('/profile', async (req, res) => {
   }
 });
 
-// Feature/unfeature a project
+// Update project admin fields (featured, description, deploy)
 adminRouter.patch('/projects/:id/feature', async (req, res) => {
   try {
     const { id } = req.params;
-    const { is_featured, custom_description, deploy_url, is_deployed } = req.body;
-    await pool.query(`
-      UPDATE projects SET
-        is_featured = COALESCE($2, is_featured),
-        custom_description = COALESCE($3, custom_description),
-        deploy_url = COALESCE($4, deploy_url),
-        is_deployed = COALESCE($5, is_deployed)
-      WHERE id = $1
-    `, [id, is_featured, custom_description, deploy_url, is_deployed]);
+    const fields = [];
+    const values = [id];
+    let idx = 1;
+
+    if ('is_featured' in req.body) {
+      fields.push(`is_featured = $${++idx}`);
+      values.push(!!req.body.is_featured);
+    }
+    if ('custom_description' in req.body) {
+      fields.push(`custom_description = $${++idx}`);
+      values.push(req.body.custom_description || null);
+    }
+    if ('deploy_url' in req.body) {
+      const url = (req.body.deploy_url || '').trim();
+      fields.push(`deploy_url = $${++idx}`);
+      values.push(url || null);
+      // Clearing the URL also clears the live flag unless explicitly set below
+      if (!url && !('is_deployed' in req.body)) {
+        fields.push(`is_deployed = $${++idx}`);
+        values.push(false);
+      }
+    }
+    if ('is_deployed' in req.body) {
+      fields.push(`is_deployed = $${++idx}`);
+      values.push(!!req.body.is_deployed);
+    }
+
+    if (!fields.length) {
+      return res.status(400).json({ error: 'No fields to update' });
+    }
+
+    await pool.query(
+      `UPDATE projects SET ${fields.join(', ')} WHERE id = $1`,
+      values
+    );
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
