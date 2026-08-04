@@ -4,47 +4,59 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const LINKEDIN_DIR = join(__dirname, '../../../_linkedin/LinkedInDataExport_07-31-2026');
+// Prefer the newest export; fall back path kept in git history if needed.
+const LINKEDIN_DIR = join(__dirname, '../../../_linkedin/Complete_LinkedInDataExport_08-01-2026');
 
-function parseCSV(filename) {
-  const content = readFileSync(join(LINKEDIN_DIR, filename), 'utf-8');
-  const lines = content.split('\n');
-  const headers = lines[0].split(',').map(h => h.trim());
-  const rows = [];
-
-  // Simple CSV parser that handles quoted fields
-  for (let i = 1; i < lines.length; i++) {
-    if (!lines[i].trim()) continue;
-    const row = {};
-    let current = '';
-    let inQuotes = false;
-    let fieldIndex = 0;
-
-    for (let j = 0; j <= lines[i].length; j++) {
-      const char = lines[i][j];
-
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if ((char === ',' && !inQuotes) || j === lines[i].length) {
-        if (fieldIndex < headers.length) {
-          row[headers[fieldIndex]] = current.trim();
-        }
-        current = '';
-        fieldIndex++;
-      } else if (char === '\n' && inQuotes) {
-        // Multi-line field — grab next line
-        current += '\n';
-        i++;
-        j = -1; // reset to start of next line
-      } else {
-        current += char || '';
-      }
+function splitCSVLine(line) {
+  const fields = [];
+  let field = '';
+  let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    if (line[i] === '"') inQ = !inQ;
+    else if (line[i] === ',' && !inQ) {
+      fields.push(field.trim());
+      field = '';
+    } else {
+      field += line[i];
     }
-
-    if (Object.keys(row).length > 0) rows.push(row);
   }
-  return rows;
+  fields.push(field.trim());
+  return fields;
 }
+
+/** Exact-or-whole-word match so "C"/"SQL" do not steal "Cloud"/"MySQL". */
+function skillMatches(skillName, matcher) {
+  const skill = skillName.toLowerCase();
+  const m = matcher.toLowerCase();
+  if (skill === m) return true;
+  const skillBase = skill.replace(/\s*\([^)]*\)\s*/g, '').trim();
+  if (skillBase === m) return true;
+  // Short / ambiguous tokens — equality only (C, C#, SQL, Go, …)
+  if (m.length <= 3) {
+    return skillBase === m || skill === m;
+  }
+  return skill.includes(m) || skillBase.includes(m);
+}
+
+const SKILL_NOISE = new Set([
+  'char',
+  'teamwork',
+  'english',
+  'attention to detail',
+  'graphs',
+  'program analysis',
+  'markdown',
+  'bower',
+  'requirejs',
+  'front-end development',
+  'back-end web development',
+  'web development',
+  'software development',
+  'software engineering',
+  'engineering',
+  'software design',
+  'web engineering',
+]);
 
 // Better CSV parser for multi-line descriptions
 function parsePositionsCSV() {
@@ -283,21 +295,23 @@ async function importEducation() {
 
   let sortOrder = 1;
   for (const line of lines) {
-    const fields = line.split(',');
+    // School Name,Start Date,End Date,Notes,Degree Name,Activities
+    const fields = splitCSVLine(line);
     const school = fields[0];
     const startDate = fields[1];
     const endDate = fields[2];
     const degree = fields[4] || '';
+    const activities = fields[5] || ''; // LinkedIn uses Activities for field notes (e.g. Mathematics)
 
     if (!school) continue;
 
-    const startYear = startDate ? parseInt(startDate.split(' ').pop()) : null;
-    const endYear = endDate ? parseInt(endDate.split(' ').pop()) : null;
+    const startYear = startDate ? parseInt(startDate.split(' ').pop(), 10) : null;
+    const endYear = endDate ? parseInt(endDate.split(' ').pop(), 10) : null;
 
     await pool.query(`
       INSERT INTO education (institution, degree, field, start_year, end_year, sort_order)
       VALUES ($1, $2, $3, $4, $5, $6)
-    `, [school, degree, '', startYear, endYear, sortOrder++]);
+    `, [school, degree, activities, startYear, endYear, sortOrder++]);
   }
 
   console.log(`  ✅ Imported ${lines.length} education entries`);
@@ -310,76 +324,87 @@ async function importSkills() {
 
   console.log(`  Found ${allSkills.length} skills total`);
 
-  // Clear existing and re-categorize
   await pool.query('DELETE FROM skills');
 
-  // Smart categorization
+  // Order matters: specific stacks before Languages so "JavaScript eXtension" ≠ Languages.
+  // NOTE: refine.js is the curated source of truth for the public site — this is raw ingest only.
   const categories = {
-    'Languages': {
-      color: '#58A6FF',
-      match: ['TypeScript', 'JavaScript', 'Python', 'Java', 'C#', 'C', 'Swift', 'CoffeeScript', 'Visual C#'],
-    },
     'Frontend': {
       color: '#79C0FF',
-      match: ['React.js', 'Next.js', 'Redux.js', 'AngularJS', 'Backbone.js', 'jQuery', 'HTML', 'CSS', 'Cascading Style Sheets', 'LESS', 'SASS', 'Babel.js', 'Webpack', 'Material-UI', 'Anime.js', 'JavaScript eXtension', 'Requirejs', 'Bower', 'Front-End Development', 'Thymeleaf'],
+      match: ['React.js', 'Next.js', 'Redux.js', 'AngularJS', 'Backbone.js', 'jQuery', 'HTML', 'Cascading Style Sheets', 'LESS', 'SASS', 'Babel.js', 'Webpack', 'Material-UI', 'Anime.js', 'JavaScript eXtension', 'Thymeleaf'],
     },
     'Backend': {
       color: '#3FB950',
-      match: ['Node.js', 'Spring Framework', 'Spring Boot', 'Spring MVC', 'SQL', 'MySQL', 'Microsoft SQL Server', 'Cassandra', 'Firebase', 'Back-End Web Development', 'JSON', 'AJAX', 'XML', 'State Management'],
-    },
-    'Cloud & DevOps': {
-      color: '#D2A8FF',
-      match: ['Cloud Computing', 'Git', 'Tortoise SVN', 'Software Infrastructure', 'WordPress', 'Markdown'],
-    },
-    'AI & Tooling': {
-      color: '#FFA657',
-      match: ['Data Modeling', 'Data Preparation', 'DataTables', 'Graphs', 'Program Analysis', 'Attention to Detail'],
+      match: ['Node.js', 'Spring Framework', 'Spring Boot', 'Spring MVC', 'MySQL', 'Microsoft SQL Server', 'Cassandra', 'Firebase', 'JSON', 'AJAX', 'XML', 'State Management', 'Data Modeling', 'Data Preparation', 'DataTables'],
     },
     'Mobile': {
       color: '#FF7B72',
-      match: ['iOS development', 'Android Development', 'Windows Phone', 'Swift'],
+      match: ['iOS development', 'Android Development', 'Windows Phone'],
     },
     'Embedded & IoT': {
       color: '#F0883E',
       match: ['Embedded Systems', 'Embedded Software', 'Microcontrollers', 'Microchip', 'CAN bus', 'Serial Protocols', 'Electronic Engineering'],
     },
+    'Cloud & DevOps': {
+      color: '#D2A8FF',
+      match: ['Cloud Computing', 'Git', 'Tortoise SVN', 'Software Infrastructure', 'WordPress', 'Network Security'],
+    },
     'Engineering': {
       color: '#A5D6FF',
-      match: ['Software Engineering', 'Web Engineering', 'Web Development', 'Software Development', 'Software Design', 'Object-Oriented Programming', 'Engineering', 'Network Security', 'SOLIDWORKS', 'Modeler', 'Graphics'],
+      match: ['Object-Oriented Programming', 'SOLIDWORKS', 'Modeler', 'Graphics'],
+    },
+    'Languages': {
+      color: '#58A6FF',
+      match: ['TypeScript', 'JavaScript', 'Python', 'Visual C#', 'CoffeeScript', 'Swift', 'Java', 'C#', 'SQL', 'C'],
     },
   };
 
-  // Assign skills to categories
   const assigned = new Set();
+  let skippedNoise = 0;
+
   for (const [catName, cat] of Object.entries(categories)) {
-    const matched = allSkills.filter(s => cat.match.some(m => s.includes(m) || m.includes(s)));
-    for (const skill of matched) {
+    for (const skill of allSkills) {
       if (assigned.has(skill)) continue;
+      if (SKILL_NOISE.has(skill.toLowerCase())) {
+        skippedNoise++;
+        assigned.add(skill); // mark so unmatched pass doesn't double-count
+        continue;
+      }
+      if (!cat.match.some((m) => skillMatches(skill, m))) continue;
       assigned.add(skill);
 
-      // Clean up the display name
-      let displayName = skill
+      const displayName = skill
         .replace(' (Programming Language)', '')
         .replace(' (Stylesheet Language)', '')
         .replace('Cascading Style Sheets (CSS)', 'CSS')
         .replace('JavaScript eXtension (JSX)', 'JSX')
-        .replace('Object-Oriented Programming (OOP)', 'OOP');
+        .replace('Object-Oriented Programming (OOP)', 'OOP')
+        .replace('Microsoft SQL Server', 'SQL Server')
+        .replace('React.js', 'React')
+        .replace('Redux.js', 'Redux');
 
-      await pool.query(`
-        INSERT INTO skills (category, name, color) VALUES ($1, $2, $3)
-      `, [catName, displayName, cat.color]);
+      await pool.query(
+        'INSERT INTO skills (category, name, color) VALUES ($1, $2, $3)',
+        [catName, displayName, cat.color]
+      );
     }
   }
 
-  console.log(`  ✅ Imported ${assigned.size} skills into ${Object.keys(categories).length} categories`);
+  const unmatched = allSkills.filter((s) => !assigned.has(s) && !SKILL_NOISE.has(s.toLowerCase()));
+  if (unmatched.length) {
+    console.log(`  ⚠ Uncategorized (${unmatched.length}): ${unmatched.join(', ')}`);
+  }
+
+  console.log(
+    `  ✅ Imported ${assigned.size - skippedNoise} skills into ${Object.keys(categories).length} categories (skipped ${skippedNoise} noise)`
+  );
 }
 
 async function importCertifications() {
   console.log('Importing certifications...');
   const content = readFileSync(join(LINKEDIN_DIR, 'Certifications.csv'), 'utf-8');
-  const lines = content.split('\n').slice(1).filter(l => l.trim());
+  const lines = content.split('\n').slice(1).filter((l) => l.trim());
 
-  // Add certifications table if not exists
   await pool.query(`
     CREATE TABLE IF NOT EXISTS certifications (
       id SERIAL PRIMARY KEY,
@@ -395,45 +420,53 @@ async function importCertifications() {
 
   let sortOrder = 1;
   for (const line of lines) {
-    const fields = [];
-    let field = '';
-    let inQ = false;
-    for (let i = 0; i < line.length; i++) {
-      if (line[i] === '"') inQ = !inQ;
-      else if (line[i] === ',' && !inQ) { fields.push(field.trim()); field = ''; }
-      else field += line[i];
-    }
-    fields.push(field.trim());
-
+    const fields = splitCSVLine(line);
     const [name, url, authority, startedOn] = fields;
     if (!name) continue;
 
-    await pool.query(`
-      INSERT INTO certifications (name, authority, url, date, sort_order)
-      VALUES ($1, $2, $3, $4, $5)
-    `, [name, authority, url, startedOn, sortOrder++]);
+    await pool.query(
+      `INSERT INTO certifications (name, authority, url, date, sort_order)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [name, authority, url, startedOn, sortOrder++]
+    );
   }
 
   console.log(`  ✅ Imported ${lines.length} certifications`);
 }
 
+async function importLanguages() {
+  console.log('Importing spoken languages...');
+  const content = readFileSync(join(LINKEDIN_DIR, 'Languages.csv'), 'utf-8');
+  const lines = content.split('\n').slice(1).filter((l) => l.trim());
+  const names = lines
+    .map((l) => splitCSVLine(l)[0])
+    .filter(Boolean);
+
+  if (!names.length) {
+    console.log('  ⚠ No languages found');
+    return;
+  }
+
+  await pool.query(`
+    INSERT INTO settings (key, value, updated_at)
+    VALUES ('spoken_languages', $1, NOW())
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+  `, [JSON.stringify(names)]);
+
+  console.log(`  ✅ Spoken languages: ${names.join(', ')}`);
+}
+
 async function run() {
-  console.log('=== LinkedIn Data Import ===\n');
+  console.log('=== LinkedIn Data Import ===');
+  console.log(`Source: ${LINKEDIN_DIR}\n`);
 
   await importPositions();
   await importEducation();
   await importSkills();
   await importCertifications();
+  await importLanguages();
 
-  // Update profile with languages
-  await pool.query(`
-    UPDATE profile SET
-      summary = 'Engineer by day, philosopher by night. 13+ years shipping software across embedded systems, mobile, web, and cloud. Now designing systems that build it. Coffee powers the ideas. AI ships the code.',
-      updated_at = NOW()
-    WHERE id = 1
-  `);
-
-  console.log('\n✅ All imports complete');
+  console.log('\n✅ Raw import complete — run refine.js next to curate for the public site');
   await pool.end();
 }
 

@@ -7,7 +7,9 @@
     "dev": "nodemon --watch . --ext js,json src/index.js",
     "start": "node src/index.js",
     "db:migrate": "node src/db/migrate.js",
-    "db:seed": "node src/db/seed.js"
+    "db:seed": "node src/db/seed.js",
+    "db:import-linkedin": "node src/db/import-linkedin.js",
+    "db:refine": "node src/db/refine.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

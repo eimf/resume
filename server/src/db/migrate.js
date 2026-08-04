@@ -66,6 +66,15 @@ const migrate = async () => {
       synced_at TIMESTAMP DEFAULT NOW()
     );
 
+    CREATE TABLE IF NOT EXISTS certifications (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(500) NOT NULL,
+      authority VARCHAR(255),
+      url VARCHAR(500),
+      date VARCHAR(50),
+      sort_order INT DEFAULT 0
+    );
+
     CREATE TABLE IF NOT EXISTS settings (
       key VARCHAR(100) PRIMARY KEY,
       value TEXT,

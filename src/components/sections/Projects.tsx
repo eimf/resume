@@ -58,7 +58,7 @@ export function Projects() {
       <section id="projects" className="py-24 lg:py-32">
         <div className="section-container">
           <div className="mb-12">
-            <span className="font-mono text-xs text-accent tracking-wider uppercase">04 / Projects</span>
+            <span className="font-mono text-xs text-accent tracking-wider uppercase">05 / Projects</span>
             <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mt-2">Recent Work</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -80,7 +80,7 @@ export function Projects() {
     <section id="projects" ref={sectionRef} className="py-24 lg:py-32">
       <div className="section-container">
         <div className="mb-12">
-          <span className="font-mono text-xs text-accent tracking-wider uppercase">04 / Projects</span>
+          <span className="font-mono text-xs text-accent tracking-wider uppercase">05 / Projects</span>
           <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mt-2">Recent Work</h2>
           <p className="text-text-secondary mt-3 max-w-xl">
             Live from GitHub — synced automatically from public and private repositories.

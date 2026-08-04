@@ -47,7 +47,7 @@ export function Contact() {
     <section id="contact" ref={sectionRef} className="py-24 lg:py-32">
       <div className="section-container text-center">
         <div className="animate-item opacity-0 mb-8">
-          <span className="font-mono text-xs text-accent tracking-wider uppercase">05 / Contact</span>
+          <span className="font-mono text-xs text-accent tracking-wider uppercase">06 / Contact</span>
           <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mt-2">Let's Connect</h2>
           <p className="text-text-secondary mt-3 max-w-md mx-auto">
             Open to conversations about systems design, AI-powered development, and interesting projects.
