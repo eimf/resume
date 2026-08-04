@@ -191,6 +191,8 @@ async function refineEducation() {
 
   await pool.query('DELETE FROM education');
 
+  // LinkedIn CSV lacks field-of-study for UAG degrees; Activities only has "Mathematics" for UPAEP.
+  // Curated fields come from transcript / known credentials.
   const entries = [
     { institution: 'Universidad Autónoma de Guadalajara', degree: 'M.Sc.', field: 'Computer Science', start: 2011, end: 2013 },
     { institution: 'Universidad Autónoma de Guadalajara', degree: 'B.A.Sc.', field: 'Biomedical Engineering', start: 2007, end: 2011 },
@@ -208,6 +210,45 @@ async function refineEducation() {
   console.log(`  ✅ ${entries.length} education entries`);
 }
 
+async function refineCertifications() {
+  console.log('Refining certifications...');
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS certifications (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(500) NOT NULL,
+      authority VARCHAR(255),
+      url VARCHAR(500),
+      date VARCHAR(50),
+      sort_order INT DEFAULT 0
+    )
+  `);
+
+  await pool.query('DELETE FROM certifications');
+
+  // LinkedIn names are verbose ("Boot.dev's Learn X Course") — curate short labels, newest first.
+  const entries = [
+    { name: 'TypeScript', authority: 'Boot.dev', url: 'https://www.boot.dev/certificates/82aaef7d-f676-44c1-9155-ff02323aa5f1', date: 'Jul 2025' },
+    { name: 'SQL', authority: 'Boot.dev', url: 'https://www.boot.dev/certificates/1817d374-06ea-47ea-ba77-d0efd984f25e', date: 'Mar 2025' },
+    { name: 'JavaScript', authority: 'Boot.dev', url: 'https://www.boot.dev/certificates/8337f905-4c8d-46a2-bea7-2dfd2eaa69b8', date: 'Jan 2025' },
+    { name: 'Functional Programming (Python)', authority: 'Boot.dev', url: 'https://www.boot.dev/certificates/87e12fc4-7612-4ad1-8f9e-0db5119d383a', date: 'Jan 2025' },
+    { name: 'Object-Oriented Programming (Python)', authority: 'Boot.dev', url: 'https://www.boot.dev/certificates/bf75132d-42e3-4446-83ed-87245fbbfe1f', date: 'Jan 2025' },
+    { name: 'Python', authority: 'Boot.dev', url: 'https://www.boot.dev/certificates/99af8a5a-ccca-439f-a64f-09a7645be2c6', date: 'Dec 2024' },
+    { name: 'Linux', authority: 'Boot.dev', url: 'https://www.boot.dev/certificates/d84b5916-3650-4c14-8eed-44d2c159a3a4', date: 'Dec 2024' },
+    { name: 'Git', authority: 'Boot.dev', url: 'https://www.boot.dev/certificates/f220cd2b-ae9b-4711-9c5a-3ea9029189b7', date: 'Dec 2024' },
+  ];
+
+  let sortOrder = 1;
+  for (const cert of entries) {
+    await pool.query(
+      'INSERT INTO certifications (name, authority, url, date, sort_order) VALUES ($1, $2, $3, $4, $5)',
+      [cert.name, cert.authority, cert.url, cert.date, sortOrder++]
+    );
+  }
+
+  console.log(`  ✅ ${entries.length} certifications`);
+}
+
 async function refineProfile() {
   console.log('Refining profile...');
 
@@ -219,7 +260,14 @@ async function refineProfile() {
     WHERE id = 1
   `);
 
-  console.log('  ✅ Profile updated');
+  // Spoken languages from LinkedIn Languages.csv (proficiency blank in export)
+  await pool.query(`
+    INSERT INTO settings (key, value, updated_at)
+    VALUES ('spoken_languages', $1, NOW())
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+  `, [JSON.stringify(['Spanish', 'English'])]);
+
+  console.log('  ✅ Profile + spoken languages updated');
 }
 
 async function run() {
@@ -227,6 +275,7 @@ async function run() {
   await refineSkills();
   await refineExperience();
   await refineEducation();
+  await refineCertifications();
   await refineProfile();
   console.log('\n✅ All refinements complete');
   await pool.end();

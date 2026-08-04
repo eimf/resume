@@ -14,7 +14,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Profile', 'Repos', 'Experience', 'Education', 'Skills', 'Settings'],
+  tagTypes: ['Profile', 'Repos', 'Experience', 'Education', 'Skills', 'Certifications', 'Settings'],
   endpoints: (builder) => ({
     // Public endpoints
     getProfile: builder.query({
@@ -41,6 +41,10 @@ export const apiSlice = createApi({
       query: () => '/skills',
       providesTags: ['Skills'],
     }),
+    getCertifications: builder.query({
+      query: () => '/certifications',
+      providesTags: ['Certifications'],
+    }),
 
     // Admin endpoints
     syncGitHub: builder.mutation({
@@ -56,7 +60,7 @@ export const apiSlice = createApi({
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: ['Profile', 'Experience', 'Education', 'Skills'],
+      invalidatesTags: ['Profile', 'Experience', 'Education', 'Skills', 'Certifications'],
     }),
     updateProfile: builder.mutation({
       query: (data) => ({
@@ -83,6 +87,7 @@ export const {
   useGetExperienceQuery,
   useGetEducationQuery,
   useGetSkillsQuery,
+  useGetCertificationsQuery,
   useSyncGitHubMutation,
   useSyncLinkedInMutation,
   useUpdateProfileMutation,

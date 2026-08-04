@@ -7,6 +7,7 @@ import { reposRouter } from './routes/repos.js';
 import { experienceRouter } from './routes/experience.js';
 import { educationRouter } from './routes/education.js';
 import { skillsRouter } from './routes/skills.js';
+import { certificationsRouter } from './routes/certifications.js';
 import { adminRouter } from './routes/admin.js';
 
 const app = express();
@@ -36,6 +37,7 @@ app.use('/api/repos', reposRouter);
 app.use('/api/experience', experienceRouter);
 app.use('/api/education', educationRouter);
 app.use('/api/skills', skillsRouter);
+app.use('/api/certifications', certificationsRouter);
 
 // Admin routes (auth required)
 app.use('/api/admin', adminRouter);
