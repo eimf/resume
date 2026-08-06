@@ -57,10 +57,9 @@ resumeRouter.get('/pdf', async (req, res) => {
     // Contact line
     doc.moveDown(0.3);
     const contactParts = [];
-    if (profile.email) contactParts.push(profile.email);
+    contactParts.push('io@ezeke.dev');
     if (profile.location) contactParts.push(profile.location);
     if (profile.website) contactParts.push(profile.website);
-    contactParts.push('io@ezeke.dev');
     if (profile.linkedin_url) contactParts.push('linkedin.com/in/ezzykeeel');
     if (profile.github_url) contactParts.push('github.com/eimf');
 
