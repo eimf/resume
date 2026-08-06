@@ -9,6 +9,7 @@ import { educationRouter } from './routes/education.js';
 import { skillsRouter } from './routes/skills.js';
 import { certificationsRouter } from './routes/certifications.js';
 import { adminRouter } from './routes/admin.js';
+import { contactRouter } from './routes/contact.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -41,6 +42,9 @@ app.use('/api/certifications', certificationsRouter);
 
 // Admin routes (auth required)
 app.use('/api/admin', adminRouter);
+
+// Contact form (public)
+app.use('/api/contact', contactRouter);
 
 // Start server
 app.listen(PORT, () => {

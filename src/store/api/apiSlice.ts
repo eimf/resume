@@ -77,6 +77,13 @@ export const apiSlice = createApi({
         body: credentials,
       }),
     }),
+    sendContact: builder.mutation({
+      query: (data) => ({
+        url: '/contact',
+        method: 'POST',
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -92,4 +99,5 @@ export const {
   useSyncLinkedInMutation,
   useUpdateProfileMutation,
   useLoginMutation,
+  useSendContactMutation,
 } = apiSlice;
