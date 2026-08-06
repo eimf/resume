@@ -52,3 +52,50 @@ export async function sendContactEmail({ name, email, subject, message }) {
 
   return data;
 }
+
+/**
+ * Send a confirmation email to the person who submitted the contact form.
+ * @param {{ name: string, email: string, subject?: string, message: string }} data
+ */
+export async function sendConfirmationEmail({ name, email, subject, message }) {
+  const { data, error } = await resend.emails.send({
+    from: `Ezequiel Lopez <${FROM_EMAIL}>`,
+    to: [email],
+    replyTo: TO_EMAIL,
+    subject: 'Thanks for reaching out!',
+    html: `
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #1a1a2e; border-bottom: 2px solid #58a6ff; padding-bottom: 8px;">
+          Message Received
+        </h2>
+        <p style="color: #333; line-height: 1.6;">
+          Hey ${name},
+        </p>
+        <p style="color: #333; line-height: 1.6;">
+          Thanks for reaching out! I've received your message and will get back to you as soon as I can.
+        </p>
+        <p style="color: #333; line-height: 1.6;">
+          Here's a copy of what you sent:
+        </p>
+        ${subject ? `<p style="color: #555; font-size: 14px;"><strong>Subject:</strong> ${subject}</p>` : ''}
+        <div style="background: #f6f8fa; border-radius: 8px; padding: 16px; margin: 16px 0; border-left: 3px solid #58a6ff;">
+          <p style="margin: 0; white-space: pre-wrap; line-height: 1.6; color: #444; font-size: 14px;">${message}</p>
+        </div>
+        <p style="color: #333; line-height: 1.6;">
+          — Ezequiel
+        </p>
+        <hr style="border: none; border-top: 1px solid #e1e4e8; margin: 24px 0;" />
+        <p style="color: #888; font-size: 12px;">
+          You can reply directly to this email to reach me at io@ezeke.dev
+        </p>
+      </div>
+    `,
+  });
+
+  if (error) {
+    console.error('Confirmation email error:', error.message);
+    // Don't throw — confirmation is non-critical
+  }
+
+  return data;
+}

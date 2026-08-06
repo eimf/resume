@@ -31,7 +31,7 @@ export function AdminLogin() {
         <div className="glass-card p-8">
           <div className="text-center mb-8">
             <h1 className="text-xl font-bold text-text-primary">Admin Portal</h1>
-            <p className="text-sm text-text-muted mt-1 font-mono">ez.dev</p>
+            <p className="text-sm text-text-muted mt-1 font-mono">ezeke.dev</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">

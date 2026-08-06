@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { sendContactEmail } from '../services/email.js';
+import { sendContactEmail, sendConfirmationEmail } from '../services/email.js';
 
 export const contactRouter = Router();
 
@@ -28,6 +28,7 @@ contactRouter.post('/', async (req, res) => {
     }
 
     await sendContactEmail({ name, email, subject, message });
+    await sendConfirmationEmail({ name, email, subject, message });
 
     res.json({ success: true, message: 'Message sent successfully.' });
   } catch (err) {

@@ -100,7 +100,7 @@ export function Nav() {
           onClick={handleLogoClick}
           className="font-mono text-sm font-semibold text-accent hover:text-accent-hover transition-colors"
         >
-          ez<span className="text-text-muted">.</span>dev
+          ez<span className="text-text-muted">eke.</span>dev
         </a>
 
         {/* Desktop nav links */}

@@ -10,6 +10,7 @@ import { skillsRouter } from './routes/skills.js';
 import { certificationsRouter } from './routes/certifications.js';
 import { adminRouter } from './routes/admin.js';
 import { contactRouter } from './routes/contact.js';
+import { resumeRouter } from './routes/resume.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -45,6 +46,9 @@ app.use('/api/admin', adminRouter);
 
 // Contact form (public)
 app.use('/api/contact', contactRouter);
+
+// Resume PDF (public)
+app.use('/api/resume', resumeRouter);
 
 // Start server
 app.listen(PORT, () => {
