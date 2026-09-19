@@ -2,9 +2,35 @@ import { useEffect, useRef, useState } from 'react';
 import { animate, stagger } from 'animejs';
 import { useSendContactMutation } from '../../store/api/apiSlice';
 
+const TURNSTILE_SITE_KEY = import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined;
+
+// Minimal typing for the Turnstile script loaded in index.html.
+declare global {
+  interface Window {
+    turnstile?: {
+      render: (
+        el: HTMLElement,
+        opts: {
+          sitekey: string;
+          action?: string;
+          callback?: (token: string) => void;
+          'expired-callback'?: () => void;
+          'error-callback'?: () => void;
+          theme?: 'auto' | 'light' | 'dark';
+        }
+      ) => string;
+      reset: (widgetId?: string) => void;
+      remove: (widgetId?: string) => void;
+    };
+  }
+}
+
 export function Contact() {
   const sectionRef = useRef<HTMLElement>(null);
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
   const [sendContact, { isLoading }] = useSendContactMutation();
+  const [turnstileToken, setTurnstileToken] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -38,6 +64,34 @@ export function Contact() {
     return () => observer.disconnect();
   }, []);
 
+  // Render the Turnstile widget explicitly so we own its ID and can reset it
+  // after each submit (the form stays mounted; tokens are single-use).
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY) return; // no key configured — skip (dev fallback)
+
+    let cancelled = false;
+    const tryRender = () => {
+      if (cancelled) return;
+      if (!window.turnstile || !turnstileRef.current || widgetIdRef.current) return;
+      widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
+        sitekey: TURNSTILE_SITE_KEY,
+        action: 'contact',
+        theme: 'auto',
+        callback: (token: string) => setTurnstileToken(token),
+        'expired-callback': () => setTurnstileToken(''),
+        'error-callback': () => setTurnstileToken(''),
+      });
+    };
+
+    // The script loads async; poll briefly until window.turnstile exists.
+    tryRender();
+    const interval = window.setInterval(tryRender, 300);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, []);
+
   const handleLinkHover = (e: React.MouseEvent<HTMLAnchorElement>) => {
     animate(e.currentTarget, {
       scale: [1, 1.05],
@@ -63,14 +117,27 @@ export function Contact() {
     setStatus('idle');
     setErrorMessage('');
 
+    // Require a Turnstile token before hitting the server (when configured).
+    if (TURNSTILE_SITE_KEY && !turnstileToken) {
+      setStatus('error');
+      setErrorMessage('Please wait for the verification to finish, then try again.');
+      return;
+    }
+
     try {
-      await sendContact(formData).unwrap();
+      await sendContact({ ...formData, 'cf-turnstile-response': turnstileToken }).unwrap();
       setStatus('success');
       setFormData({ name: '', email: '', subject: '', message: '', website: '' });
     } catch (err: unknown) {
       setStatus('error');
       const error = err as { data?: { error?: string } };
       setErrorMessage(error?.data?.error || 'Something went wrong. Please try again.');
+    } finally {
+      // Tokens are single-use; clear and reset the widget for any retry.
+      setTurnstileToken('');
+      if (widgetIdRef.current && window.turnstile) {
+        window.turnstile.reset(widgetIdRef.current);
+      }
     }
   };
 
@@ -166,6 +233,9 @@ export function Contact() {
                 placeholder="Your message..."
               />
             </div>
+
+            {/* Cloudflare Turnstile — invisible/managed bot check */}
+            <div ref={turnstileRef} className="cf-turnstile" />
 
             <button
               type="submit"
