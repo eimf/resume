@@ -58,11 +58,23 @@ async function verifyTurnstile(token, clientIp) {
     return false;
   }
 
-  return (
+  const ok =
     result.success === true &&
     result.action === 'contact' &&
-    EXPECTED_HOSTNAMES.has(result.hostname)
-  );
+    EXPECTED_HOSTNAMES.has(result.hostname);
+
+  if (!ok) {
+    // Diagnostic: reveal which check failed without leaking the token/secret.
+    console.error('Turnstile rejected:', {
+      success: result.success,
+      action: result.action,
+      hostname: result.hostname,
+      errorCodes: result['error-codes'],
+      allowedHostnames: [...EXPECTED_HOSTNAMES],
+    });
+  }
+
+  return ok;
 }
 
 contactRouter.post('/', contactLimiter, async (req, res) => {
