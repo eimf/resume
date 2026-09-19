@@ -15,6 +15,10 @@ import { resumeRouter } from './routes/resume.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust the first proxy hop (Railway/Vercel/Cloudflare) so express-rate-limit
+// keys off the real client IP instead of the proxy's IP.
+app.set('trust proxy', 1);
+
 // Middleware
 const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5174').split(',');
 app.use(cors({

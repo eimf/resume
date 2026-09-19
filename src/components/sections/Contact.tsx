@@ -10,6 +10,7 @@ export function Contact() {
     email: '',
     subject: '',
     message: '',
+    website: '', // honeypot — hidden from humans, only bots fill this
   });
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
@@ -65,7 +66,7 @@ export function Contact() {
     try {
       await sendContact(formData).unwrap();
       setStatus('success');
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setFormData({ name: '', email: '', subject: '', message: '', website: '' });
     } catch (err: unknown) {
       setStatus('error');
       const error = err as { data?: { error?: string } };
@@ -86,6 +87,20 @@ export function Contact() {
 
         <div className="animate-item opacity-0 max-w-lg mx-auto">
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Honeypot: hidden from real users; bots fill it and get silently dropped server-side. */}
+            <div className="absolute -left-[9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
+              <label htmlFor="contact-website">Website (leave this empty)</label>
+              <input
+                type="text"
+                id="contact-website"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={formData.website}
+                onChange={handleChange}
+              />
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="contact-name" className="block text-xs font-mono text-text-muted mb-1.5">
